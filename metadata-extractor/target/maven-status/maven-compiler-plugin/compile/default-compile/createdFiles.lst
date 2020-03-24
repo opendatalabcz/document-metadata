@@ -1,0 +1,8 @@
+org\elasticsearch\plugin\extractor\modules\ModuleController.class
+org\elasticsearch\plugin\extractor\modules\ExtractionModule.class
+org\elasticsearch\plugin\extractor\ExtractionController.class
+org\elasticsearch\plugin\extractor\modules\PDFModule.class
+org\elasticsearch\plugin\extractor\MetadataExtractor.class
+org\elasticsearch\plugin\extractor\objects\InfoHolder.class
+org\elasticsearch\plugin\extractor\ExtractorRestHandler.class
+org\elasticsearch\plugin\extractor\validation\Validator.class
