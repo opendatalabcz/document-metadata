@@ -1,6 +1,0 @@
-description=metadata extractor for elasticsearch
-version=1.0.1
-name=metadata-indexer
-classname=org.elasticsearch.plugin.extractor.MetadataExtractor
-java.version=1.8
-elasticsearch.version=7.5.0

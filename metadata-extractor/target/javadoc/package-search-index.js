@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"org.elasticsearch.plugin.extractor"},{"l":"org.elasticsearch.plugin.extractor.commons"},{"l":"org.elasticsearch.plugin.extractor.modules"},{"l":"org.elasticsearch.plugin.extractor.modules.implementation"},{"l":"org.elasticsearch.plugin.extractor.objects"},{"l":"org.elasticsearch.plugin.extractor.validation"}]
