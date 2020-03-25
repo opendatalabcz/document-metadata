@@ -1,29 +1,23 @@
-package org.elasticsearch.plugin.extractor.modules;
+package org.elasticsearch.plugin.extractor.modules.implementation;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.io.IOUtils;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.BodyContentHandler;
+import org.elasticsearch.plugin.extractor.modules.ExtractionModule;
 import org.elasticsearch.plugin.extractor.objects.InfoHolder;
 import org.elasticsearch.rest.RestStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
-import org.xml.sax.SAXException;
 
 import java.io.*;
-import java.nio.CharBuffer;
 
-public class PDFModule extends ExtractionModule{
-
+public class PDFModule extends ExtractionModule {
+    private final String [] supported_extentions = {"pdf"};
+    public PDFModule(){
+    }
     @Override
     public InfoHolder extractMetadata(File file){
         InfoHolder info_holder = new InfoHolder();
@@ -36,9 +30,7 @@ public class PDFModule extends ExtractionModule{
             JSONObject final_meta = new JSONObject();
             JSONObject xml_meta = new JSONObject();
             if(metadata!=null) {
-                InputStream xmlInputStream = metadata.createInputStream();
-                Reader reader = new InputStreamReader(xmlInputStream);
-                xml_meta = XML.toJSONObject(reader);
+                xml_meta = readMetadata(metadata);
             }
             JSONObject dict_meta = new JSONObject();
             JSONArray pages_meta_array = new JSONArray();
@@ -66,6 +58,17 @@ public class PDFModule extends ExtractionModule{
         return info_holder;
     }
 
+    @Override
+    public String[] getSupportedExtentions() {
+        return supported_extentions;
+    }
+
+    /**
+     * Function reads xmp metadata from metadata object and coverts them into JSONObject.
+     * @param meta metadata object containting xmp metadata
+     * @return JSONObject from xmp metadata
+     * @throws IOException
+     */
     private JSONObject readMetadata(PDMetadata meta) throws IOException {
         InputStream xmlInputStream = meta.createInputStream();
         Reader reader = new InputStreamReader(xmlInputStream);

@@ -12,10 +12,14 @@ import org.json.JSONObject;
 import java.io.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 public class ExtractionController {
+    /**
+     * Function is responsible for controlling proccess of validating request, validating file,
+     * extracting metadata and indexing extracted metadata to elasticsearch.
+     * @param request RestRequest object
+     * @param client NodeClient
+     * @return InfoHolder object with validation status and extracted metadata
+     */
     public static InfoHolder extract(RestRequest request, NodeClient client){
         InfoHolder my_info = new InfoHolder();
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
@@ -25,8 +29,7 @@ public class ExtractionController {
                 val_info = Validator.validateFile(json.getString("path"));
                 if (val_info.isValid()) {
                     File file = new File(json.getString("path"));
-                    String extention = file.getName().substring(file.getName().lastIndexOf(".") + 1);
-                    val_info = ModuleController.getInstance().extractMetadata(file, extention);
+                    val_info = ModuleController.getInstance().extractMetadata(file);
                     if (val_info.isValid()) {
                         IndexRequest index_request = new IndexRequest(json.getString("index"));
                         index_request.source(val_info.getMetadata().toString(), XContentType.JSON);
@@ -39,10 +42,8 @@ public class ExtractionController {
             my_info.setStatus(val_info.getStatus());
             my_info.setResponse(val_info.getResponse());
             my_info.setMetadata(val_info.getMetadata());
-            Logger.getGlobal().log(Level.INFO,"MYINFO1:"+my_info.toString());
             return null;
         });
-        Logger.getGlobal().log(Level.INFO,"MYINFO2:"+my_info.toString());
         return my_info;
     }
 }

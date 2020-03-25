@@ -4,6 +4,9 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.rest.RestStatus;
 import org.json.JSONObject;
 
+/**
+ * Class holding information about validation, response from elasticsearch and metadata object.
+ */
 public class InfoHolder {
     private RestStatus status;
     private boolean valid;
@@ -55,6 +58,9 @@ public class InfoHolder {
         this.metadata = metadata;
     }
 
+    /**
+     * @return custom String representation of InfoHolder object
+     */
     @Override
     public String toString(){
         return "Rest_status: "+status+"\nvalid: "+valid+"\nvalidation_message: "+validation_message+"\n";

@@ -1,5 +1,6 @@
 package org.elasticsearch.plugin.extractor.validation;
 
+import org.elasticsearch.plugin.extractor.commons.Common;
 import org.elasticsearch.plugin.extractor.modules.ModuleController;
 import org.elasticsearch.plugin.extractor.objects.InfoHolder;
 import org.elasticsearch.rest.RestRequest;
@@ -15,6 +16,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Validator {
+
+    /**
+     * Function check basic validy of request (required fields, validity of json content)
+     * @param request RestRequest object containing the content
+     * @return InfoHolder object with validation status
+     */
     public static InfoHolder validateRequest(RestRequest request){
         InfoHolder val_info = new InfoHolder();
         if(!request.hasContent()){
@@ -39,16 +46,20 @@ public class Validator {
             }
 
         }
-        Logger.getGlobal().log(Level.INFO,val_info.toString());
         return val_info;
     }
 
+    /**
+     * Function check basic validy of file (extention support, readable file).
+     * @param path path to the file
+     * @return InfoHolder object with validation status
+     */
     public static InfoHolder validateFile(String path){
         InfoHolder val_info = new InfoHolder();
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             File file = new File(path);
             if(file.getName().contains(".")) {
-                String extention = file.getName().substring(file.getName().lastIndexOf(".") + 1);
+                String extention = Common.getInstance().getFileExtention(file);
                 if (!ModuleController.getInstance().containsModuleForExtention(extention)) {
                     val_info.setValid(false);
                     val_info.setStatus(RestStatus.BAD_REQUEST);
@@ -67,7 +78,6 @@ public class Validator {
             }
             return null;
         });
-        Logger.getGlobal().log(Level.INFO,val_info.toString());
         return val_info;
     }
 }
