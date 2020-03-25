@@ -1,0 +1,6 @@
+org.elasticsearch.plugin.extractor
+org.elasticsearch.plugin.extractor.commons
+org.elasticsearch.plugin.extractor.modules
+org.elasticsearch.plugin.extractor.modules.implementation
+org.elasticsearch.plugin.extractor.objects
+org.elasticsearch.plugin.extractor.validation
