@@ -13,17 +13,17 @@ import org.json.JSONObject;
 import org.json.XML;
 
 import java.io.*;
+import java.net.URL;
 
 public class PDFModule extends ExtractionModule {
     private final String [] supported_extentions = {"pdf"};
     public PDFModule(){
     }
     @Override
-    public InfoHolder extractMetadata(File file){
+    public InfoHolder extractMetadata(URL url){
         InfoHolder info_holder = new InfoHolder();
         try {
-
-            PDDocument doc = PDDocument.load(file);
+            PDDocument doc = PDDocument.load(new BufferedInputStream(url.openStream()));
             PDDocumentInformation info = doc.getDocumentInformation();
             PDDocumentCatalog catalog = doc.getDocumentCatalog();
             PDMetadata metadata = catalog.getMetadata();

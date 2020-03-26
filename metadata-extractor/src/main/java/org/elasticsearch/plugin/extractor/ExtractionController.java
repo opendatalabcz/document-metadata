@@ -7,9 +7,11 @@ import org.elasticsearch.plugin.extractor.modules.ModuleController;
 import org.elasticsearch.plugin.extractor.validation.Validator;
 import org.elasticsearch.plugin.extractor.objects.InfoHolder;
 import org.elasticsearch.rest.RestRequest;
+import org.elasticsearch.rest.RestStatus;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 public class ExtractionController {
@@ -23,25 +25,32 @@ public class ExtractionController {
     public static InfoHolder extract(RestRequest request, NodeClient client){
         InfoHolder my_info = new InfoHolder();
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-            InfoHolder val_info = Validator.validateRequest(request);
-            if(val_info.isValid()){
-                JSONObject json = new JSONObject(request.content().utf8ToString());
-                val_info = Validator.validateFile(json.getString("path"));
+            try {
+                InfoHolder val_info = Validator.validateRequest(request);
                 if (val_info.isValid()) {
-                    File file = new File(json.getString("path"));
-                    val_info = ModuleController.getInstance().extractMetadata(file);
+                    JSONObject json = new JSONObject(request.content().utf8ToString());
+                    URL url = new URL(json.getString("path"));
+                    val_info = Validator.validateFile(url);
                     if (val_info.isValid()) {
-                        IndexRequest index_request = new IndexRequest(json.getString("index"));
-                        index_request.source(val_info.getMetadata().toString(), XContentType.JSON);
-                        val_info.setResponse(client.index(index_request).actionGet());
+                        val_info = ModuleController.getInstance().extractMetadata(url);
+                        if (val_info.isValid()) {
+                            IndexRequest index_request = new IndexRequest(json.getString("index"));
+                            index_request.source(val_info.getMetadata().toString(), XContentType.JSON);
+                            val_info.setResponse(client.index(index_request).actionGet());
+                        }
                     }
                 }
+                my_info.setValidation_message(val_info.getValidation_message());
+                my_info.setValid(val_info.isValid());
+                my_info.setStatus(val_info.getStatus());
+                my_info.setResponse(val_info.getResponse());
+                my_info.setMetadata(val_info.getMetadata());
+            }catch (MalformedURLException e) {
+                my_info.setValid(false);
+                my_info.setStatus(RestStatus.BAD_REQUEST);
+                my_info.setValidation_message("MALFORMED URL");
             }
-            my_info.setValidation_message(val_info.getValidation_message());
-            my_info.setValid(val_info.isValid());
-            my_info.setStatus(val_info.getStatus());
-            my_info.setResponse(val_info.getResponse());
-            my_info.setMetadata(val_info.getMetadata());
+
             return null;
         });
         return my_info;

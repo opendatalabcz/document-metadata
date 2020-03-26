@@ -9,6 +9,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -50,31 +52,26 @@ public class Validator {
     }
 
     /**
-     * Function check basic validy of file (extention support, readable file).
-     * @param path path to the file
+     * Function check basic validy of file (extention support, valid URL).
+     * @param url path to the file
      * @return InfoHolder object with validation status
      */
-    public static InfoHolder validateFile(String path){
+    public static InfoHolder validateFile(URL url){
         InfoHolder val_info = new InfoHolder();
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-            File file = new File(path);
-            if(file.getName().contains(".")) {
-                String extention = Common.getInstance().getFileExtention(file);
+            if(url.getPath().contains(".")) {
+                String extention = Common.getInstance().getFileExtention(url);
                 if (!ModuleController.getInstance().containsModuleForExtention(extention)) {
                     val_info.setValid(false);
                     val_info.setStatus(RestStatus.BAD_REQUEST);
                     val_info.setValidation_message("NOT VALID FILE EXTENTION");
-                } else if (!Files.isReadable(file.toPath())) {
-                    val_info.setValid(false);
-                    val_info.setStatus(RestStatus.BAD_REQUEST);
-                    val_info.setValidation_message("FILE IS NOT READABLE");
                 } else {
                     val_info.setValid(true);
                 }
             }else {
                 val_info.setValid(false);
                 val_info.setStatus(RestStatus.BAD_REQUEST);
-                val_info.setValidation_message("NOT VALID FILE EXTENTION");
+                val_info.setValidation_message("FILE EXTENTION NOT FOUND");
             }
             return null;
         });

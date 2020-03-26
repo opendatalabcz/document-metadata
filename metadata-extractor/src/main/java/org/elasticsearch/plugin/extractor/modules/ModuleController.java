@@ -6,6 +6,7 @@ import org.reflections.Reflections;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -40,11 +41,11 @@ public class ModuleController {
 
     /**
      * Function will find correct ExtractorModule and call it's extractMetadata function (works like connector).
-     * @param file input file for metadata extraction
+     * @param url path to input file for metadata extraction
      * @return InfoHolder object containting extracted metadata and validation information.
      */
-    public InfoHolder extractMetadata(File file){
-        return modules.get(Common.getInstance().getFileExtention(file)).extractMetadata(file);
+    public InfoHolder extractMetadata(URL url){
+        return modules.get(Common.getInstance().getFileExtention(url)).extractMetadata(url);
     }
 
     /**

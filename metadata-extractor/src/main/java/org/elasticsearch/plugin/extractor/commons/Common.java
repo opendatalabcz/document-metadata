@@ -1,6 +1,7 @@
 package org.elasticsearch.plugin.extractor.commons;
 
 import java.io.File;
+import java.net.URL;
 
 /**
  * Singleton class containing common functions needed in multiple classes.
@@ -18,10 +19,10 @@ public class Common {
 
     /**
      * Returns the file extention in String form.
-     * @param file input File
+     * @param url path of file
      * @return String representation of file extention
      */
-    public String getFileExtention(File file){
-        return file.getName().substring(file.getName().lastIndexOf(".") + 1);
+    public String getFileExtention(URL url){
+        return url.getPath().substring(url.getPath().lastIndexOf(".") + 1);
     }
 }
