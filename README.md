@@ -10,17 +10,38 @@ Elasticsearch metadata extractor plugin is used to extract metadata from file (l
   - Written in JAVA
 
 # Installation
+  - Download **metadata-extractor-x.y.z.zip** (x.y.z represents version of elasticsearch,  version used in this example: **7.5.0**) from [repository](https://github.com/opendatalabcz/document-metadata/tree/master/metadata-extractor/releases)
+  ```sh
+$ wget "https://github.com/opendatalabcz/document-metadata/raw/master
+```
+  - Download and extract [elasticsearch](https://www.elastic.co/downloads/past-releases#elasticsearch) with the same version as metadata-extractor plugin
+   ```sh
+$ wget "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.5.0-linux-x86_64.tar.gz"
+$ tar -xvf ./elasticsearch-7.5.0-linux-x86_64.tar.gz
+```
+  - Install metadata-extractor plugin (answer **y** to plugin permission) 
+ ```sh 
+$ ./elasticsearch-7.5.0/bin/elasticsearch-plugin install file://$PWD/metadata-extractor-7.5.0.zip
+```
+- Start elasticsearch with installed metadata-extractor plugin
+ ```sh 
+$ ./elasticsearch-7.5.0/bin/elasticsearch
+```
+**TIPS:**
+  - Always keep **same version** of plugin (zip file) and elasticsearch
+  - You can check installed plugin description with command:
+  ```sh 
+$ ./elasticsearch-7.5.0/bin/elasticsearch-plugin list --verbose
+```
+  - You can remove installed plugin with command:
+  ```sh 
+$ ./elasticsearch-7.5.0/bin/elasticsearch-plugin remove metadata-extractor
+```
 
-  - Download metadata-extractor-
-  - Drag and drop images (requires your Dropbox account be linked)
+# Tutorial
+Simple request extracting metadata from pdf file: **/home/extractor/pdftest.pdf** and indexing it to index: **test**
 
 
-You can also:
-  - Import and save files from GitHub, Dropbox, Google Drive and One Drive
-  - Drag and drop markdown and HTML files into Dillinger
-  - Export documents as Markdown, HTML and PDF
-
-Markdown is a lightweight markup language based on the formatting conventions that people naturally use in email.  As [John Gruber] writes on the [Markdown site][df1]
 
 > The overriding design goal for Markdown's
 > formatting syntax is to make it as readable

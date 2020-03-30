@@ -23,6 +23,14 @@ public class Common {
      * @return String representation of file extention
      */
     public String getFileExtention(URL url){
-        return url.getPath().substring(url.getPath().lastIndexOf(".") + 1);
+        int back_slash = 0;
+        int front_slash = 0;
+        back_slash = url.getPath().lastIndexOf("/");
+        front_slash = url.getPath().lastIndexOf("\\");
+        String tmp = url.getPath().substring(Math.max(back_slash,front_slash)+1);
+        if(tmp.contains(".")){
+            return tmp.substring(tmp.lastIndexOf(".") + 1);
+        }
+        return null;
     }
 }
