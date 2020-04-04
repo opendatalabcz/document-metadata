@@ -3,11 +3,13 @@ package org.elasticsearch.plugin.extractor.validation;
 import org.elasticsearch.plugin.extractor.commons.Common;
 import org.elasticsearch.plugin.extractor.modules.ModuleController;
 import org.elasticsearch.plugin.extractor.objects.InfoHolder;
+import org.elasticsearch.plugin.extractor.objects.ValidationException;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
@@ -26,12 +28,14 @@ public class Validator {
         return validator;
     }
 
+
     /**
-     * Function check basic validy of request (required fields, validity of json content attributes)
+     * Function check basic validy of request (required fields, validity of json content attributes).
      * @param request RestRequest object containing the content
-     * @return InfoHolder object with validation status and extracted attributes
+     * @return true if request is valid
+     * @throws ValidationException holding the error message and response code
      */
-    public InfoHolder validateRequestAndExtractContentData(RestRequest request){
+    public boolean isValidRequest(RestRequest request) throws ValidationException {
         InfoHolder val_info = new InfoHolder();
         if(!request.hasContent()){
             val_info.setStatus(RestStatus.BAD_REQUEST);
@@ -51,11 +55,7 @@ public class Validator {
                     val_info.setValidation_message("MANDATORY FIELD (index,path) NOT FILLED");
                 }else{
                     URL url = new URL(json.getString("path"));
-                    val_info = validateFile(url);
-                    if(val_info.isValid()){
-                        val_info.setOutput_index(json.getString("index"));
-                        val_info.setFile(url);
-                    }
+                    val_info.setValid(isValidFile(url));
                 }
             } catch (JSONException e) {
                 val_info.setStatus(RestStatus.BAD_REQUEST);
@@ -68,25 +68,50 @@ public class Validator {
             }
 
         }
-        return val_info;
+        if(!val_info.isValid()){
+            throw new ValidationException(val_info);
+        }
+        return true;
     }
 
     /**
      * Function check basic validy of file (extention support).
      * @param url path to the file
-     * @return InfoHolder object with validation status
+     * @return true if file is valid
      */
-    private InfoHolder validateFile(URL url){
+    private boolean isValidFile(URL url) throws ValidationException {
         InfoHolder val_info = new InfoHolder();
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
             if(url.getPath().contains(".")) {
                 String extention = Common.getInstance().getFileExtention(url);
-                if (!ModuleController.getInstance().containsModuleForExtention(extention)) {
+                try {
+                    if (!ModuleController.getInstance().containsModuleForExtention(extention)) {
+                        val_info.setValid(false);
+                        val_info.setStatus(RestStatus.BAD_REQUEST);
+                        val_info.setValidation_message("NOT VALID FILE EXTENTION");
+                    } else {
+                        val_info.setValid(true);
+                    }
+                } catch (NoSuchMethodException e) {
                     val_info.setValid(false);
-                    val_info.setStatus(RestStatus.BAD_REQUEST);
-                    val_info.setValidation_message("NOT VALID FILE EXTENTION");
-                } else {
-                    val_info.setValid(true);
+                    val_info.setStatus(RestStatus.INTERNAL_SERVER_ERROR);
+                    val_info.setValidation_message("MODULE_CONTROLLER: "+e.getMessage());
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    val_info.setValid(false);
+                    val_info.setStatus(RestStatus.INTERNAL_SERVER_ERROR);
+                    val_info.setValidation_message("MODULE_CONTROLLER: "+e.getMessage());
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    val_info.setValid(false);
+                    val_info.setStatus(RestStatus.INTERNAL_SERVER_ERROR);
+                    val_info.setValidation_message("MODULE_CONTROLLER: "+e.getMessage());
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    val_info.setValid(false);
+                    val_info.setStatus(RestStatus.INTERNAL_SERVER_ERROR);
+                    val_info.setValidation_message("MODULE_CONTROLLER: "+e.getMessage());
+                    e.printStackTrace();
                 }
             }else {
                 val_info.setValid(false);
@@ -95,6 +120,9 @@ public class Validator {
             }
             return null;
         });
-        return val_info;
+        if(!val_info.isValid()){
+            throw new ValidationException(val_info);
+        }
+        return true;
     }
 }

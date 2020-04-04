@@ -75,6 +75,8 @@ public class MetadataExtractorTest {
         HttpPost post = new HttpPost("http://localhost:9200/_extract_metadata");
         StringEntity online_pdf = new StringEntity("{\"index\":\"test\",\"path\":\"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf\"}", ContentType.APPLICATION_JSON);
         StringEntity local_pdf_linux = new StringEntity("{\"index\":\"test\",\"path\":\"file:///mnt/c/skola/Diplomka/document-metadata/metadata-extractor/src/tests/resources/test.pdf\"}", ContentType.APPLICATION_JSON);
+        StringEntity online_pdf_with_id_1 = new StringEntity("{\"index\":\"test\",\"path\":\"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf\",\"_id\":\"test_id\",\"extras\":{\"type\":\"type1\"}}", ContentType.APPLICATION_JSON);
+        StringEntity online_pdf_with_id_2 = new StringEntity("{\"index\":\"test\",\"path\":\"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf\",\"_id\":\"test_id\",\"extras\":{\"type\":\"type2\"}}", ContentType.APPLICATION_JSON);
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
         CloseableHttpResponse response;
@@ -88,6 +90,16 @@ public class MetadataExtractorTest {
         response = httpClient.execute(post);
         assertEquals(201,response.getStatusLine().getStatusCode());
         assertTrue(EntityUtils.toString(response.getEntity()).contains("\"result\":\"created\""));
+
+        post.setEntity(online_pdf_with_id_1);
+        response = httpClient.execute(post);
+        System.out.println(EntityUtils.toString(response.getEntity()));
+        assertTrue(response.getStatusLine().getStatusCode()==200||response.getStatusLine().getStatusCode()==201);
+
+        post.setEntity(online_pdf_with_id_2);
+        response = httpClient.execute(post);
+        assertTrue(response.getStatusLine().getStatusCode()==200||response.getStatusLine().getStatusCode()==201);
+        assertTrue(EntityUtils.toString(response.getEntity()).contains("\"result\":\"updated\""));
 
         httpClient.close();
     }

@@ -20,9 +20,8 @@ public class PDFModule extends ExtractionModule {
     public PDFModule(){
     }
     @Override
-    public InfoHolder extractMetadata(URL url){
+    public JSONObject extractMetadata(URL url) throws Exception{
         InfoHolder info_holder = new InfoHolder();
-        try {
             PDDocument doc = PDDocument.load(new BufferedInputStream(url.openStream()));
             PDDocumentInformation info = doc.getDocumentInformation();
             PDDocumentCatalog catalog = doc.getDocumentCatalog();
@@ -47,15 +46,7 @@ public class PDFModule extends ExtractionModule {
             }
             final_meta.put("document_metadata_dict",dict_meta);
             doc.close();
-            info_holder.setValid(true);
-            info_holder.setMetadata(final_meta);
-        } catch (IOException e) {
-            info_holder.setValid(false);
-            info_holder.setStatus(RestStatus.BAD_REQUEST);
-            info_holder.setValidation_message("IOEXCEPTION ON FILE: "+e.getMessage());
-        }
-
-        return info_holder;
+            return final_meta;
     }
 
     @Override

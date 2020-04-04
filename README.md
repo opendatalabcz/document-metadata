@@ -37,59 +37,111 @@ $ ./elasticsearch-7.5.0/bin/elasticsearch-plugin list --verbose
   ```sh 
 $ ./elasticsearch-7.5.0/bin/elasticsearch-plugin remove metadata-extractor
 ```
+- If you are installing plugin on **Windows**, path for file looks like this:
+```sh
+./elasticsearch-plugin install file:\\\C:\metadata-extractor-7.5.0.zip
+```
 
 # Tutorial
-Simple request extracting metadata from pdf file: **/home/extractor/pdftest.pdf** and indexing it to index: **test**
+### Request: 
+```PUT /_extract_metadata```
+```POST /_extract_metadata```
+### Request body
+```index``` (required) (String)
+- specify the output index
 
+```path``` (required) (String)
+- url path to the file from which you want to extract metadata
+- local (file://{path_to_file}) or from server (https://{path_to_file})
 
+```_id``` (optional) (String)
+- elasticsearch use it as document id
 
-> The overriding design goal for Markdown's
-> formatting syntax is to make it as readable
-> as possible. The idea is that a
-> Markdown-formatted document should be
-> publishable as-is, as plain text, without
-> looking like it's been marked up with tags
-> or formatting instructions.
+```extras``` (optional) (JSON object)
+- this object will be saved beside metada object in elasticsearch document
+- JSON structure object
 
-This text you see here is *actually* written in Markdown! To get a feel for Markdown's syntax, type some text into the left window and watch the results in the right.
-
-### Tech
-
-Dillinger uses a number of open source projects to work properly:
-
-* [AngularJS] - HTML enhanced for web apps!
-* [Ace Editor] - awesome web-based text editor
-* [markdown-it] - Markdown parser done right. Fast and easy to extend.
-* [Twitter Bootstrap] - great UI boilerplate for modern web apps
-* [node.js] - evented I/O for the backend
-* [Express] - fast node.js network app framework [@tjholowaychuk]
-* [Gulp] - the streaming build system
-* [Breakdance](https://breakdance.github.io/breakdance/) - HTML to Markdown converter
-* [jQuery] - duh
-
-And of course Dillinger itself is open source with a [public repository][dill]
- on GitHub.
-
-### Installation
-
-Dillinger requires [Node.js](https://nodejs.org/) v4+ to run.
-
-Install the dependencies and devDependencies and start the server.
-
+### Example 1
+Simple request extracting metadata from local pdf file on linux and indexing it to specified index in elasticsearch.
+##### request
 ```sh
-$ cd dillinger
-$ npm install -d
-$ node app
+curl -X PUT "http://localhost:9200/_extract_metadata" -H 'Content-Type: application/json' -d'
+{
+	"index":"test",
+	"path":"file:///home/tester/doc1.pdf"
+}'
 ```
 
-For production environments...
-
+##### es document
+```json
+{
+  "_index": "test",
+  "_type": "_doc",
+  "_id": "_CSBMXEBbV9ku85xj6_w",
+  "_version": 1,
+  "_score": 0,
+  "_source": {
+    "metadata": {
+      "document_metadata_dict": {
+        "CreationDate": "D:20070223175637+02'00'",
+        "Producer": "OpenOffice.org 2.1",
+        "Author": "Evangelos Vlachogiannis",
+        "Creator": "Writer"
+      },
+      "document_metadata_xml": {},
+      "pages_metadata": []
+    }
+  }
+}
+```
+### Example 2
+Complex request extracting metadata from online pdf source, with also specified document **_id** and **extras** data.
+##### request
 ```sh
-$ npm install --production
-$ NODE_ENV=production node app
+curl -X PUT "http://localhost:9200/_extract_metadata" -H 'Content-Type: application/json' -d'
+{
+	"index":"test",
+	"_id":"test_2",
+	"path":"https://file-examples.com/wp-content/uploads/2017/10/file-sample_150kB.pdf",
+	"extras":{
+		"test_obj1":{
+			"type_1":"test_type_1",
+			"type_2":"test_type_2"
+		}
+	}
+}'
+```
+##### es document
+```json
+{
+  "_index": "test",
+  "_type": "_doc",
+  "_id": "test_2",
+  "_version": 1,
+  "_score": 0,
+  "_source": {
+    "metadata": {
+      "document_metadata_dict": {
+        "CreationDate": "D:20170816144413+02'00'",
+        "Producer": "LibreOffice 4.2",
+        "Creator": "Writer"
+      },
+      "document_metadata_xml": {},
+      "pages_metadata": []
+    },
+    "extras": {
+      "test_obj1": {
+        "type_2": "test_type_2",
+        "type_1": "test_type_1"
+      }
+    }
+  }
+}
 ```
 
-### Plugins
+
+
+### Version
 
 Dillinger is currently extended with the following plugins. Instructions on how to use them in your own application are linked below.
 
@@ -105,7 +157,8 @@ Dillinger is currently extended with the following plugins. Instructions on how 
 
 ### Development
 
-Want to contribute? Great!
+Steps for adding new extractor class:
+
 
 Dillinger uses Gulp + Webpack for fast developing.
 Make a change in your file and instantaneously see your updates!

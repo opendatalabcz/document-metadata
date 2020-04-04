@@ -1,10 +1,9 @@
 package org.elasticsearch.plugin.extractor.modules;
 
 import org.elasticsearch.plugin.extractor.commons.Common;
-import org.elasticsearch.plugin.extractor.objects.InfoHolder;
+import org.json.JSONObject;
 import org.reflections.Reflections;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashMap;
@@ -20,7 +19,7 @@ public class ModuleController {
     private Reflections reflections;
 
     private Set<Class<? extends ExtractionModule>> allClasses;
-    private ModuleController() {
+    private ModuleController() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         modules = new HashMap<String, ExtractionModule>();
         reflections = new Reflections("org.elasticsearch.plugin.extractor.modules.implementation");
         allClasses = reflections.getSubTypesOf(ExtractionModule.class);
@@ -31,8 +30,12 @@ public class ModuleController {
     /**
      * Function creates (if not created) and returns the instance of ModuleController.
      * @return ModuleController instance
+     * @throws NoSuchMethodException exception thrown if loading extraction classes fails
+     * @throws InstantiationException exception thrown if loading extraction classes fails
+     * @throws IllegalAccessException exception thrown if loading extraction classes fails
+     * @throws InvocationTargetException exception thrown if loading extraction classes fails
      */
-    public static ModuleController getInstance(){
+    public static ModuleController getInstance() throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         if(module_controller==null){
             module_controller = new ModuleController();
         }
@@ -42,9 +45,10 @@ public class ModuleController {
     /**
      * Function will find correct ExtractorModule and call it's extractMetadata function (works like connector).
      * @param url path to input file for metadata extraction
-     * @return InfoHolder object containting extracted metadata and validation information.
+     * @return JSONObject containting extracted metadata
+     * @throws Exception from parsing and extracting metadata from file
      */
-    public InfoHolder extractMetadata(URL url){
+    public JSONObject extractMetadata(URL url) throws Exception{
         return modules.get(Common.getInstance().getFileExtention(url)).extractMetadata(url);
     }
 
@@ -60,23 +64,13 @@ public class ModuleController {
     /**
      * Function will load all extractor classes (modules) in package org.elasticsearch.plugin.extractor.modules.implementation
      */
-    private void loadModules(){
-        try {
+    private void loadModules() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
             for(Class cls : allClasses){
                 ExtractionModule extraction_module = (ExtractionModule) cls.getConstructor().newInstance();
                 for(String sup_extention:extraction_module.getSupportedExtentions()){
                     modules.put(sup_extention,extraction_module);
                 }
             }
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
     }
 
 }
