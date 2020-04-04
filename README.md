@@ -141,32 +141,19 @@ curl -X PUT "http://localhost:9200/_extract_metadata" -H 'Content-Type: applicat
 
 
 
-### Version
-
-Dillinger is currently extended with the following plugins. Instructions on how to use them in your own application are linked below.
-
-| Plugin | README |
-| ------ | ------ |
-| Dropbox | [plugins/dropbox/README.md][PlDb] |
-| GitHub | [plugins/github/README.md][PlGh] |
-| Google Drive | [plugins/googledrive/README.md][PlGd] |
-| OneDrive | [plugins/onedrive/README.md][PlOd] |
-| Medium | [plugins/medium/README.md][PlMe] |
-| Google Analytics | [plugins/googleanalytics/README.md][PlGa] |
+# Versions
+All available versions are in [releases package](https://github.com/opendatalabcz/document-metadata/tree/master/metadata-extractor/releases)
+- each zip file contains plugin descriptor, policy file and jar files 
+- plugin will be correctly installed and run on elasticsearch version same as plugin version (e.g. metadata-extractor-7.5.0.zip will run correctly on elasticsearch version 7.5.0 -> last 3 digits with dots are representing the version.)
 
 
-### Development
+# Development
 
-Steps for adding new extractor class:
+**Steps for adding new extractor class:**
+- **create class** in: [implementation package](https://github.com/opendatalabcz/document-metadata/tree/master/metadata-extractor/src/main/java/org/elasticsearch/plugin/extractor/modules/implementation) which implements abstract [extraction module](https://github.com/opendatalabcz/document-metadata/blob/master/metadata-extractor/src/main/java/org/elasticsearch/plugin/extractor/modules/ExtractionModule.java)
+- **extractMetadata** function is resposible for extracting metadata from given file and returning them as JSON Object
+- **getSupportedExtentions** function is responsible for returning array of strings (representing supported extentions, e.g. { "doc" , "docx" })
 
+**Documentation**:  [javadoc](https://github.com/opendatalabcz/document-metadata/tree/development/metadata-extractor/javadoc)
 
-Dillinger uses Gulp + Webpack for fast developing.
-Make a change in your file and instantaneously see your updates!
-
-Open your favorite Terminal and run these commands.
-
-First Tab:
-```sh
-$ node app
-```
 
