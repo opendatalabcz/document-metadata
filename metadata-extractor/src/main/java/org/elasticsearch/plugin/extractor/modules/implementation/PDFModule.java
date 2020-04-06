@@ -6,8 +6,6 @@ import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.elasticsearch.plugin.extractor.modules.ExtractionModule;
-import org.elasticsearch.plugin.extractor.objects.InfoHolder;
-import org.elasticsearch.rest.RestStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.XML;
@@ -21,7 +19,6 @@ public class PDFModule extends ExtractionModule {
     }
     @Override
     public JSONObject extractMetadata(URL url) throws Exception{
-        InfoHolder info_holder = new InfoHolder();
             PDDocument doc = PDDocument.load(new BufferedInputStream(url.openStream()));
             PDDocumentInformation info = doc.getDocumentInformation();
             PDDocumentCatalog catalog = doc.getDocumentCatalog();
