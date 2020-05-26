@@ -13,6 +13,7 @@ public class DataHolder {
     private String document_id;
     private JSONObject document_extra_source;
     private URL file;
+    private String filename;
 
     public DataHolder(){
         output_index = null;
@@ -21,6 +22,15 @@ public class DataHolder {
         document_extra_source = null;
         metadata = null;
     }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
     public JSONObject getMetadata() {
         return metadata;
     }
@@ -69,6 +79,8 @@ public class DataHolder {
         JSONObject tmp = new JSONObject();
         tmp.put("metadata",metadata);
         tmp.put("extras",document_extra_source);
+        tmp.put("filename",filename);
+        tmp.put("extractor_timestamp",java.time.Clock.systemUTC().instant().toString());
         return tmp;
     }
 }

@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>readme</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="elasticsearch-metadata-extractor-plugin">Elasticsearch Metadata Extractor plugin</h1>
+<p><a href="https://www.elastic.co/"><img src="https://logodix.com/logo/1687804.png" height="100"></a><a href="https://www.apache.org/"><img src="https://logodix.com/logo/1024526.png" height="100"></a></p>
+<p>Elasticsearch metadata extractor plugin is used to extract metadata from file (local or from server) and then index them into chosen index.</p>
+<ul>
+<li>Easy to use with single endpoint</li>
+<li>Using powerful and stable Apache libraries for extraction</li>
+<li>Written in JAVA</li>
+</ul>
+<h1 id="installation">Installation</h1>
+<ul>
+<li>Download <strong>metadata-extractor-x.y.z.zip</strong> (x.y.z represents version of elasticsearch,  version used in this example: <strong>7.5.0</strong>) from <a href="https://github.com/opendatalabcz/document-metadata/tree/master/metadata-extractor/releases">repository</a></li>
+</ul>
+<pre class=" language-sh"><code class="prism  language-sh">$ wget "https://github.com/opendatalabcz/document-metadata/raw/master"
+</code></pre>
+<ul>
+<li>Download and extract <a href="https://www.elastic.co/downloads/past-releases#elasticsearch">elasticsearch</a> with the same version as metadata-extractor plugin</li>
+</ul>
+<pre class=" language-sh"><code class="prism  language-sh">$ wget "https://artifacts.elastic.co/downloads/elasticsearch
+/elasticsearch-7.5.0-linux-x86_64.tar.gz"
+$ tar -xvf ./elasticsearch-7.5.0-linux-x86_64.tar.gz
+</code></pre>
+<ul>
+<li>Install metadata-extractor plugin (answer <strong>y</strong> to plugin permission)</li>
+</ul>
+<pre class=" language-sh"><code class="prism  language-sh">$ ./elasticsearch-7.5.0/bin/elasticsearch-plugin 
+install file://$PWD/metadata-extractor-7.5.0.zip
+</code></pre>
+<ul>
+<li>Start elasticsearch with installed metadata-extractor plugin</li>
+</ul>
+<pre class=" language-sh"><code class="prism  language-sh">$ ./elasticsearch-7.5.0/bin/elasticsearch
+</code></pre>
+<p><strong>TIPS:</strong></p>
+<ul>
+<li>Always keep <strong>same version</strong> of plugin (zip file) and elasticsearch</li>
+<li>You can check installed plugin description with command:</li>
+</ul>
+<pre class=" language-sh"><code class="prism  language-sh">$ ./elasticsearch-7.5.0/bin/elasticsearch-plugin list --verbose
+</code></pre>
+<ul>
+<li>You can remove installed plugin with command:</li>
+</ul>
+<pre class=" language-sh"><code class="prism  language-sh">$ ./elasticsearch-7.5.0/bin/elasticsearch-plugin remove metadata-extractor
+</code></pre>
+<ul>
+<li>If you are installing plugin on <strong>Windows</strong>, path for file looks like this:</li>
+</ul>
+<pre class=" language-sh"><code class="prism  language-sh">./elasticsearch-plugin install file:\\\C:\metadata-extractor-7.5.0.zip
+</code></pre>
+<h1 id="tutorial">Tutorial</h1>
+<h3 id="request">Request:</h3>
+<p><code>PUT /_extract_metadata</code><br>
+<code>POST /_extract_metadata</code></p>
+<h3 id="request-body">Request body</h3>
+<p><code>index</code> (required) (String)</p>
+<ul>
+<li>specify the output index</li>
+</ul>
+<p><code>path</code> (required) (String)</p>
+<ul>
+<li>url path to the file from which you want to extract metadata</li>
+<li>local (file://{path_to_file}) or from server (https://{path_to_file})</li>
+</ul>
+<p><code>_id</code> (optional) (String)</p>
+<ul>
+<li>elasticsearch use it as document id</li>
+</ul>
+<p><code>extras</code> (optional) (JSON object)</p>
+<ul>
+<li>this object will be saved beside metada object in elasticsearch document</li>
+<li>JSON structure object</li>
+</ul>
+<h3 id="example-1">Example 1</h3>
+<p>Simple request extracting metadata from local pdf file on linux and indexing it to specified index in elasticsearch.</p>
+<h5 id="request-1">request</h5>
+<pre class=" language-sh"><code class="prism  language-sh">curl -X PUT "http://localhost:9200/_extract_metadata"
+-H 'Content-Type: application/json' -d'
+{
+	"index":"test",
+	"path":"file:///home/tester/doc1.pdf"
+}'
+</code></pre>
+<h5 id="es-document">es document</h5>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"_index"</span><span class="token punctuation">:</span> <span class="token string">"test"</span><span class="token punctuation">,</span>
+  <span class="token string">"_type"</span><span class="token punctuation">:</span> <span class="token string">"_doc"</span><span class="token punctuation">,</span>
+  <span class="token string">"_id"</span><span class="token punctuation">:</span> <span class="token string">"_CSBMXEBbV9ku85xj6_w"</span><span class="token punctuation">,</span>
+  <span class="token string">"_version"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+  <span class="token string">"_score"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token string">"_source"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"document_metadata_dict"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"CreationDate"</span><span class="token punctuation">:</span> <span class="token string">"D:20070223175637+02'00'"</span><span class="token punctuation">,</span>
+        <span class="token string">"Producer"</span><span class="token punctuation">:</span> <span class="token string">"OpenOffice.org 2.1"</span><span class="token punctuation">,</span>
+        <span class="token string">"Author"</span><span class="token punctuation">:</span> <span class="token string">"Evangelos Vlachogiannis"</span><span class="token punctuation">,</span>
+        <span class="token string">"Creator"</span><span class="token punctuation">:</span> <span class="token string">"Writer"</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token string">"document_metadata_xml"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token string">"pages_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="example-2">Example 2</h3>
+<p>Complex request extracting metadata from online pdf source, with also specified document <strong>_id</strong> and <strong>extras</strong> data.</p>
+<h5 id="request-2">request</h5>
+<pre class=" language-sh"><code class="prism  language-sh">curl -X PUT "http://localhost:9200/_extract_metadata"
+     -H 'Content-Type: application/json' -d'
+{
+	"index":"test",
+	"_id":"test_2",
+	"path":"https://file-examples.com/
+		wp-content/uploads/2017/10/file-sample_150kB.pdf",
+	"extras":{
+		"test_obj1":{
+			"type_1":"test_type_1",
+			"type_2":"test_type_2"
+		}
+	}
+}'
+</code></pre>
+<h5 id="es-document-1">es document</h5>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"_index"</span><span class="token punctuation">:</span> <span class="token string">"test"</span><span class="token punctuation">,</span>
+  <span class="token string">"_type"</span><span class="token punctuation">:</span> <span class="token string">"_doc"</span><span class="token punctuation">,</span>
+  <span class="token string">"_id"</span><span class="token punctuation">:</span> <span class="token string">"test_2"</span><span class="token punctuation">,</span>
+  <span class="token string">"_version"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+  <span class="token string">"_score"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token string">"_source"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"document_metadata_dict"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"CreationDate"</span><span class="token punctuation">:</span> <span class="token string">"D:20170816144413+02'00'"</span><span class="token punctuation">,</span>
+        <span class="token string">"Producer"</span><span class="token punctuation">:</span> <span class="token string">"LibreOffice 4.2"</span><span class="token punctuation">,</span>
+        <span class="token string">"Creator"</span><span class="token punctuation">:</span> <span class="token string">"Writer"</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token string">"document_metadata_xml"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token string">"pages_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"extras"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"test_obj1"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"type_2"</span><span class="token punctuation">:</span> <span class="token string">"test_type_2"</span><span class="token punctuation">,</span>
+        <span class="token string">"type_1"</span><span class="token punctuation">:</span> <span class="token string">"test_type_1"</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h1 id="versions">Versions</h1>
+<p>All available versions are in <a href="https://github.com/opendatalabcz/document-metadata/tree/master/metadata-extractor/releases">releases package</a></p>
+<ul>
+<li>each zip file contains plugin descriptor, policy file and jar files</li>
+<li>plugin will be correctly installed and run on elasticsearch version same as plugin version (e.g. metadata-extractor-7.5.0.zip will run correctly on elasticsearch version 7.5.0 -&gt; last 3 digits with dots are representing the version.)</li>
+</ul>
+<h1 id="development">Development</h1>
+<p><strong>Steps for adding new extractor class:</strong></p>
+<ul>
+<li><strong>create class</strong> in: <a href="https://github.com/opendatalabcz/document-metadata/tree/master/metadata-extractor/src/main/java/org/elasticsearch/plugin/extractor/modules/implementation">implementation package</a> which implements abstract <a href="https://github.com/opendatalabcz/document-metadata/blob/master/metadata-extractor/src/main/java/org/elasticsearch/plugin/extractor/modules/ExtractionModule.java">extraction module</a></li>
+<li><strong>extractMetadata</strong> function is resposible for extracting metadata from given file and returning them as JSON Object</li>
+<li><strong>getSupportedExtentions</strong> function is responsible for returning array of strings (representing supported extentions, e.g. { “doc” , “docx” })</li>
+</ul>
+<p><strong>Documentation</strong>:  <a href="https://github.com/opendatalabcz/document-metadata/tree/development/metadata-extractor/javadoc">javadoc</a></p>
+</div>
+</body>
+
+</html>

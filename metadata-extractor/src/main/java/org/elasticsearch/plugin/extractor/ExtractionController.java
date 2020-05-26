@@ -89,6 +89,9 @@ public class ExtractionController {
         if(obj.has("_id")&&!obj.getString("_id").isEmpty()){
             data.setDocument_id(obj.getString("_id"));
         }
+        if(obj.has("filename")){
+            data.setFilename(obj.getString("filename"));
+        }
         return data;
     }
 }

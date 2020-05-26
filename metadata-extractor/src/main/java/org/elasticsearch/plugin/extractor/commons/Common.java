@@ -25,9 +25,9 @@ public class Common {
     public String getFileExtention(URL url){
         int back_slash = 0;
         int front_slash = 0;
-        back_slash = url.getPath().lastIndexOf("/");
-        front_slash = url.getPath().lastIndexOf("\\");
-        String tmp = url.getPath().substring(Math.max(back_slash,front_slash)+1);
+        back_slash = url.toString().lastIndexOf("/");
+        front_slash = url.toString().lastIndexOf("\\");
+        String tmp = url.toString().substring(Math.max(back_slash,front_slash)+1);
         if(tmp.contains(".")){
             return tmp.substring(tmp.lastIndexOf(".") + 1);
         }

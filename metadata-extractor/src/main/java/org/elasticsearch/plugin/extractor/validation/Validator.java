@@ -82,7 +82,7 @@ public class Validator {
     private boolean isValidFile(URL url) throws ValidationException {
         InfoHolder val_info = new InfoHolder();
         AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-            if(url.getPath().contains(".")) {
+            if(url.toString().contains(".")) {
                 String extention = Common.getInstance().getFileExtention(url);
                 try {
                     if (!ModuleController.getInstance().containsModuleForExtention(extention)) {

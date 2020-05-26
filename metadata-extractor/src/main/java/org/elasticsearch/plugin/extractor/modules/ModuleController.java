@@ -49,7 +49,10 @@ public class ModuleController {
      * @throws Exception from parsing and extracting metadata from file
      */
     public JSONObject extractMetadata(URL url) throws Exception{
-        return modules.get(Common.getInstance().getFileExtention(url)).extractMetadata(url);
+        String file_type = Common.getInstance().getFileExtention(url);
+        JSONObject tmp_json = modules.get(file_type).extractMetadata(url);
+        tmp_json.put("file_type",file_type);
+        return tmp_json;
     }
 
     /**
